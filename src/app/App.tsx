@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowDownUp, DollarSign, Ruler } from 'lucide-react';
 
 type ConversionMode = 'currency' | 'hectares' | 'sqmeters';
@@ -16,9 +16,32 @@ interface ConversionConfig {
 }
 
 export default function App() {
-  const [inputAmount, setInputAmount] = useState('');
+  const [topValue, setTopValue]       = useState('');
+  const [bottomValue, setBottomValue] = useState('');
   const [mode, setMode] = useState<ConversionMode>('currency');
   const [isReversed, setIsReversed] = useState(false);
+
+  const FALLBACK_RATE = 0.018;
+  const [liveRate, setLiveRate]     = useState<number | null>(null);
+  const [rateStatus, setRateStatus] = useState<'loading' | 'live' | 'fallback'>('loading');
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch('https://open.er-api.com/v6/latest/PHP', { signal: controller.signal })
+      .then(res => { if (!res.ok) throw new Error(); return res.json(); })
+      .then((data: { rates: Record<string, number>; time_last_update_utc: string }) => {
+        const fetched = data?.rates?.USD;
+        if (typeof fetched !== 'number' || fetched <= 0) throw new Error();
+        setLiveRate(fetched);
+        setLastUpdated(data.time_last_update_utc);
+        setRateStatus('live');
+      })
+      .catch(err => { if (err.name !== 'AbortError') setRateStatus('fallback'); });
+    return () => controller.abort();
+  }, []);
+
+  const effectiveCurrencyRate = liveRate ?? FALLBACK_RATE;
 
   const configs: Record<ConversionMode, ConversionConfig> = {
     currency: {
@@ -28,8 +51,8 @@ export default function App() {
       fromLabel: 'Philippine Peso',
       toUnit: 'USD',
       toLabel: 'US Dollar',
-      rate: 0.018,
-      rateText: '1 PHP = 0.018 USD',
+      rate: effectiveCurrencyRate,
+      rateText: `1 PHP = ${effectiveCurrencyRate.toFixed(4)} USD`,
       decimals: 2,
     },
     hectares: {
@@ -62,37 +85,44 @@ export default function App() {
   const fromUnit = isReversed ? config.toUnit : config.fromUnit;
   const fromLabel = isReversed ? config.toLabel : config.fromLabel;
   const toUnit = isReversed ? config.fromUnit : config.toUnit;
-  const toLabel = isReversed ? config.fromLabel : config.fromLabel;
+  const toLabel = isReversed ? config.fromLabel : config.toLabel;
   const rate = isReversed ? (1 / config.rate) : config.rate;
   const rateText = isReversed 
     ? `1 ${config.toUnit} = ${(1 / config.rate).toFixed(config.decimals === 2 ? 2 : 4)} ${config.fromUnit}`
     : config.rateText;
   
-  const outputAmount = inputAmount 
-    ? (parseFloat(inputAmount) * rate).toFixed(config.decimals) 
-    : '0.00';
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTopChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // Only allow numbers and decimal point
     if (value === '' || /^\d*\.?\d*$/.test(value)) {
-      setInputAmount(value);
+      setTopValue(value);
+      setBottomValue(value ? (parseFloat(value) * rate).toFixed(config.decimals) : '');
+    }
+  };
+
+  const handleBottomChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+      setBottomValue(value);
+      setTopValue(value ? (parseFloat(value) / rate).toFixed(config.decimals) : '');
     }
   };
 
   const clearAmount = () => {
-    setInputAmount('');
+    setTopValue('');
+    setBottomValue('');
   };
 
   const switchMode = (newMode: ConversionMode) => {
     setMode(newMode);
-    setInputAmount('');
+    setTopValue('');
+    setBottomValue('');
     setIsReversed(false);
   };
 
   const swapUnits = () => {
     setIsReversed(!isReversed);
-    setInputAmount('');
+    setTopValue(bottomValue);
+    setBottomValue(topValue);
   };
 
   return (
@@ -116,8 +146,8 @@ export default function App() {
             <input
               type="text"
               inputMode="decimal"
-              value={inputAmount}
-              onChange={handleInputChange}
+              value={topValue}
+              onChange={handleTopChange}
               placeholder="0"
               className="w-full bg-white/20 backdrop-blur-sm text-white text-4xl font-light border-none outline-none rounded-2xl px-4 py-3 placeholder-white/50"
             />
@@ -140,17 +170,49 @@ export default function App() {
               <span className="text-gray-900 text-2xl font-semibold">{toUnit}</span>
               <span className="text-gray-500 text-sm">{toLabel}</span>
             </div>
-            <div className="w-full bg-white text-gray-900 text-4xl font-light rounded-2xl px-4 py-3 border-2 border-gray-200">
-              {outputAmount}
-            </div>
+            <input
+              type="text"
+              inputMode="decimal"
+              value={bottomValue}
+              onChange={handleBottomChange}
+              placeholder="0"
+              className="w-full bg-white text-gray-900 text-4xl font-light rounded-2xl px-4 py-3 border-2 border-gray-200 outline-none focus:border-indigo-300"
+            />
           </div>
 
           {/* Rate Info */}
           <div className="px-6 py-4 bg-white border-t border-gray-100">
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-600">Conversion Rate</span>
+              {mode === 'currency' && (
+                <>
+                  {rateStatus === 'loading' && (
+                    <span className="text-xs text-gray-400 animate-pulse">Fetching rate...</span>
+                  )}
+                  {rateStatus === 'live' && (
+                    <span className="text-xs font-medium text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5">
+                      Live rate
+                    </span>
+                  )}
+                  {rateStatus === 'fallback' && (
+                    <span className="text-xs font-medium text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">
+                      Approximate
+                    </span>
+                  )}
+                </>
+              )}
               <span className="text-gray-900 font-medium">{rateText}</span>
             </div>
+            {mode === 'currency' && rateStatus === 'live' && lastUpdated && (
+              <p className="text-xs text-gray-400 mt-1 text-right">
+                Updated {new Date(lastUpdated).toLocaleDateString('en-GB', {
+                  day: 'numeric',
+                  month: 'short',
+                  year: '2-digit',
+                  timeZone: 'America/Los_Angeles',
+                })}
+              </p>
+            )}
           </div>
 
           {/* Clear Button */}
@@ -203,7 +265,15 @@ export default function App() {
 
         {/* Footer Note */}
         <div className="text-center mt-6 text-sm text-gray-600">
-          <p>{mode === 'currency' ? 'Exchange rates are approximate and for reference only' : 'Conversion rates are standard values'}</p>
+          <p>
+            {mode !== 'currency'
+              ? 'Conversion rates are standard values'
+              : rateStatus === 'loading'
+              ? 'Fetching live exchange rate...'
+              : rateStatus === 'fallback'
+              ? 'Could not fetch live rate — using approximate fallback'
+              : null}
+          </p>
         </div>
       </div>
     </div>
