@@ -146,17 +146,16 @@ export default function App() {
   };
 
   return (
-    <div className="size-full bg-gradient-to-br from-blue-50 to-indigo-100 flex items-start justify-center pt-2 px-4 pb-4">
-      <div className="w-full max-w-sm">
-        {/* Philippines Time */}
-        <div className="text-center mb-3 text-sm text-gray-500 font-medium tracking-wide whitespace-pre">
-          {phTime}
-        </div>
-
-        {/* Converter Card */}
-        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
+    <div className="size-full flex flex-col bg-gray-50">
           {/* Input */}
-          <div className="pt-6 px-6 pb-10 bg-gradient-to-r from-blue-500 to-indigo-600">
+          <div
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 pb-10"
+            style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+          >
+            {/* Philippines Time */}
+            <div className="text-center pt-3 mb-2 text-sm text-white/60 font-medium tracking-wide whitespace-pre">
+              {phTime}
+            </div>
             <div className="text-white text-sm font-medium mb-2 opacity-90">From</div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-white text-2xl font-semibold">{fromUnit}</span>
@@ -237,7 +236,7 @@ export default function App() {
           </div>
 
           {/* Clear Button */}
-          <div className="p-6 pt-2">
+          <div className="p-6 pt-2 bg-white">
             <button
               onClick={clearAmount}
               className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold py-4 rounded-2xl shadow-lg active:scale-98 transition-transform"
@@ -245,56 +244,54 @@ export default function App() {
               Clear
             </button>
           </div>
-        </div>
 
         {/* Mode Switcher */}
-        <div className="mt-6 flex gap-3">
-          <button
-            onClick={() => switchMode('currency')}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-medium transition-all ${
-              mode === 'currency'
-                ? 'bg-white text-indigo-600 shadow-lg'
-                : 'bg-white/50 text-gray-600 hover:bg-white/80'
-            }`}
-          >
-            <DollarSign className="w-4 h-4" />
-            <span className="text-sm">Currency</span>
-          </button>
-          <button
-            onClick={() => switchMode('hectares')}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-medium transition-all ${
-              mode === 'hectares'
-                ? 'bg-white text-indigo-600 shadow-lg'
-                : 'bg-white/50 text-gray-600 hover:bg-white/80'
-            }`}
-          >
-            <Ruler className="w-4 h-4" />
-            <span className="text-sm">ha / ac</span>
-          </button>
-          <button
-            onClick={() => switchMode('sqmeters')}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-medium transition-all ${
-              mode === 'sqmeters'
-                ? 'bg-white text-indigo-600 shadow-lg'
-                : 'bg-white/50 text-gray-600 hover:bg-white/80'
-            }`}
-          >
-            <Ruler className="w-4 h-4" />
-            <span className="text-sm">m² / ft²</span>
-          </button>
-        </div>
-
-        {/* Footer Note */}
-        {mode === 'currency' && (rateStatus === 'loading' || rateStatus === 'fallback') && (
-          <div className="text-center mt-6 text-sm text-gray-600">
-            <p>
-              {rateStatus === 'loading'
-                ? 'Fetching live exchange rate...'
-                : 'Could not fetch live rate — using approximate fallback'}
-            </p>
+        <div className="mt-auto flex flex-col px-4 pt-3 pb-4 bg-gray-50">
+          {mode === 'currency' && (rateStatus === 'loading' || rateStatus === 'fallback') && (
+            <div className="text-center mb-3 text-sm text-gray-600">
+              <p>
+                {rateStatus === 'loading'
+                  ? 'Fetching live exchange rate...'
+                  : 'Could not fetch live rate — using approximate fallback'}
+              </p>
+            </div>
+          )}
+          <div className="flex gap-3">
+            <button
+              onClick={() => switchMode('currency')}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-medium transition-all ${
+                mode === 'currency'
+                  ? 'bg-white text-indigo-600 shadow-lg'
+                  : 'bg-white/70 text-gray-500 hover:bg-white'
+              }`}
+            >
+              <DollarSign className="w-4 h-4" />
+              <span className="text-sm">Currency</span>
+            </button>
+            <button
+              onClick={() => switchMode('hectares')}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-medium transition-all ${
+                mode === 'hectares'
+                  ? 'bg-white text-indigo-600 shadow-lg'
+                  : 'bg-white/70 text-gray-500 hover:bg-white'
+              }`}
+            >
+              <Ruler className="w-4 h-4" />
+              <span className="text-sm">ha / ac</span>
+            </button>
+            <button
+              onClick={() => switchMode('sqmeters')}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-medium transition-all ${
+                mode === 'sqmeters'
+                  ? 'bg-white text-indigo-600 shadow-lg'
+                  : 'bg-white/70 text-gray-500 hover:bg-white'
+              }`}
+            >
+              <Ruler className="w-4 h-4" />
+              <span className="text-sm">m² / ft²</span>
+            </button>
           </div>
-        )}
-      </div>
+        </div>
     </div>
   );
 }
