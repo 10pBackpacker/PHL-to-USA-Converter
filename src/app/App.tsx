@@ -146,7 +146,7 @@ export default function App() {
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-gray-50">
+    <div className="fixed inset-0 flex flex-col bg-white">
           {/* Input */}
           <div
             className="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 pb-10"
@@ -248,7 +248,7 @@ export default function App() {
           </div>
 
         {/* Mode Switcher */}
-        <div className="mt-auto flex flex-col px-4 pt-3 bg-gray-50" style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 20px)' }}>
+        <div className="mt-auto flex flex-col px-4 pt-3" style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 20px)' }}>
           {mode === 'currency' && (rateStatus === 'loading' || rateStatus === 'fallback') && (
             <div className="text-center mb-3 text-sm text-gray-600">
               <p>
@@ -264,7 +264,7 @@ export default function App() {
               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-medium transition-all ${
                 mode === 'currency'
                   ? 'bg-white text-indigo-600 shadow-lg'
-                  : 'bg-white/70 text-gray-500 hover:bg-white'
+                  : 'bg-gray-100 text-gray-500 hover:bg-gray-50'
               }`}
             >
               <DollarSign className="w-4 h-4" />
@@ -275,7 +275,7 @@ export default function App() {
               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-medium transition-all ${
                 mode === 'hectares'
                   ? 'bg-white text-indigo-600 shadow-lg'
-                  : 'bg-white/70 text-gray-500 hover:bg-white'
+                  : 'bg-gray-100 text-gray-500 hover:bg-gray-50'
               }`}
             >
               <Ruler className="w-4 h-4" />
@@ -286,7 +286,7 @@ export default function App() {
               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-medium transition-all ${
                 mode === 'sqmeters'
                   ? 'bg-white text-indigo-600 shadow-lg'
-                  : 'bg-white/70 text-gray-500 hover:bg-white'
+                  : 'bg-gray-100 text-gray-500 hover:bg-gray-50'
               }`}
             >
               <Ruler className="w-4 h-4" />
