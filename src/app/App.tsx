@@ -20,11 +20,6 @@ export default function App() {
   const [bottomValue, setBottomValue] = useState('');
   const [lastEdited, setLastEdited]   = useState<'top' | 'bottom'>('top');
   const [mode, setMode] = useState<ConversionMode>('currency');
-  const [isReversed, setIsReversed] = useState(() => {
-    const saved = localStorage.getItem('swapReversed');
-    return saved !== null ? saved === 'true' : true;
-  });
-
   const FALLBACK_RATE = 0.018;
   const [liveRate, setLiveRate]     = useState<number | null>(null);
   const [rateStatus, setRateStatus] = useState<'loading' | 'live' | 'fallback'>('loading');
@@ -45,22 +40,18 @@ export default function App() {
     return () => controller.abort();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('swapReversed', String(isReversed));
-  }, [isReversed]);
-
   const effectiveCurrencyRate = liveRate ?? FALLBACK_RATE;
 
   const configs: Record<ConversionMode, ConversionConfig> = {
     currency: {
       title: 'Currency Converter',
-      subtitle: 'PHP to USD',
-      fromUnit: 'PHP',
-      fromLabel: 'Philippine Peso',
-      toUnit: 'USD',
-      toLabel: 'US Dollar',
-      rate: effectiveCurrencyRate,
-      rateText: `1 PHP = ${effectiveCurrencyRate.toFixed(4)} USD`,
+      subtitle: 'USD to PHP',
+      fromUnit: 'USD',
+      fromLabel: 'US Dollar',
+      toUnit: 'PHP',
+      toLabel: 'Philippine Peso',
+      rate: 1 / effectiveCurrencyRate,
+      rateText: `1 USD = ${(1 / effectiveCurrencyRate).toFixed(2)} PHP`,
       decimals: 2,
     },
     hectares: {
@@ -88,16 +79,7 @@ export default function App() {
   };
 
   const config = configs[mode];
-  
-  // Determine which direction we're converting
-  const fromUnit = isReversed ? config.toUnit : config.fromUnit;
-  const fromLabel = isReversed ? config.toLabel : config.fromLabel;
-  const toUnit = isReversed ? config.fromUnit : config.toUnit;
-  const toLabel = isReversed ? config.fromLabel : config.toLabel;
-  const rate = isReversed ? (1 / config.rate) : config.rate;
-  const rateText = isReversed 
-    ? `1 ${config.toUnit} = ${(1 / config.rate).toFixed(config.decimals === 2 ? 2 : 4)} ${config.fromUnit}`
-    : config.rateText;
+  const { fromUnit, fromLabel, toUnit, toLabel, rate, rateText } = config;
   
   const addCommas = (value: string) => {
     if (!value) return value;
@@ -135,12 +117,6 @@ export default function App() {
     setTopValue('');
     setBottomValue('');
     setLastEdited('top');
-    if (newMode === 'currency') {
-      const saved = localStorage.getItem('swapReversed');
-      setIsReversed(saved !== null ? saved === 'true' : true);
-    } else {
-      setIsReversed(false);
-    }
   };
 
   const swapUnits = () => {
