@@ -33,15 +33,24 @@ The entire app lives in one file: `src/app/App.tsx`. There are no other custom c
 
 **Vite base path:** `/Currencyconverterapp/` — required for GitHub Pages. All public asset paths (manifest, icons) must include this prefix.
 
-**PWA:** `public/manifest.json` + apple-touch-icon in `index.html`. No service worker.
+**Text selection:** Disabled globally via `user-select: none` in `index.css` to prevent the iOS magnifier/callout from appearing on long-press. Re-enabled on `input` elements only.
+
+**PWA:** `public/manifest.json` + apple-touch-icon in `index.html`. No service worker. Critical iOS meta tags in `index.html`:
+- `viewport-fit=cover` — extends layout viewport to physical screen edges (behind notch)
+- `apple-mobile-web-app-capable: yes` — enables standalone PWA mode
+- `apple-mobile-web-app-status-bar-style: black-translucent` — makes content render behind the iOS status bar; required for the blue header to fill the notch area
+
+**Full-bleed layout:** The outer app container is `fixed inset-0 flex flex-col bg-white` — `position: fixed` anchors directly to physical screen corners, bypassing iOS safe-viewport height calculations. The blue header uses `style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}` to push content below the notch. The mode switcher uses `mt-auto` + `paddingBottom: max(env(safe-area-inset-bottom), 20px)` to stay pinned at the bottom above the home indicator.
+
+**Rate info stability:** The rate info section uses `h-5` fixed-height containers for both the badge row (left) and date row (right) so the section height is identical in all modes — prevents layout shift when switching between currency and unit modes.
 
 ## Key files
 
 | File | Purpose |
 |---|---|
 | `src/app/App.tsx` | Entire application |
-| `src/styles/index.css` | Global styles — sets `html, body, #root { height: 100%; overflow: hidden }` for PWA feel |
+| `src/styles/index.css` | Global styles — height/overflow, `html { background-color: #3b82f6 }` for notch color, `user-select: none` on `*` with `user-select: text` restored on `input` |
 | `public/manifest.json` | PWA manifest (name, icons, theme color) |
-| `index.html` | Viewport meta (zoom disabled), manifest link, theme-color |
+| `index.html` | Viewport meta, PWA meta tags (see PWA section above), theme-color |
 | `vite.config.ts` | Base path + React + Tailwind plugins |
 | `.github/workflows/deploy.yml` | CI: `npm install` → `npm run build` → deploy to GitHub Pages |
