@@ -146,10 +146,10 @@ export default function App() {
   };
 
   return (
-    <div className="size-full bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="size-full bg-gradient-to-br from-blue-50 to-indigo-100 flex items-start justify-center pt-10 px-4 pb-4">
       <div className="w-full max-w-sm">
         {/* Philippines Time */}
-        <div className="text-center mb-3 text-sm text-gray-500 font-medium tracking-wide">
+        <div className="text-center mb-3 text-sm text-gray-500 font-medium tracking-wide whitespace-pre">
           {phTime}
         </div>
 
