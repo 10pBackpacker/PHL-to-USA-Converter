@@ -123,7 +123,7 @@ export default function App() {
     setMode(newMode);
     setTopValue('');
     setBottomValue('');
-    setIsReversed(false);
+    setIsReversed(newMode === 'currency');
   };
 
   const swapUnits = () => {
