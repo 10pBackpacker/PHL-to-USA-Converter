@@ -131,7 +131,7 @@ export default function App() {
         {/* Converter Card */}
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
           {/* Input */}
-          <div className="p-6 bg-gradient-to-r from-blue-500 to-indigo-600">
+          <div className="pt-6 px-6 pb-10 bg-gradient-to-r from-blue-500 to-indigo-600">
             <div className="text-white text-sm font-medium mb-2 opacity-90">From</div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-white text-2xl font-semibold">{fromUnit}</span>
@@ -148,17 +148,17 @@ export default function App() {
           </div>
 
           {/* Divider with Icon */}
-          <div className="relative h-12 bg-gray-50">
-            <button 
+          <div className="relative h-7 bg-gray-50">
+            <button
               onClick={swapUnits}
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-full p-3 shadow-lg border-4 border-gray-50 hover:bg-gray-50 active:scale-95 transition-transform cursor-pointer"
+              className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 bg-white rounded-full p-3 shadow-lg border-4 border-gray-50 hover:bg-gray-50 active:scale-95 transition-transform cursor-pointer"
             >
               <ArrowDownUp className="w-5 h-5 text-indigo-600" />
             </button>
           </div>
 
           {/* Output */}
-          <div className="p-6 bg-gray-50">
+          <div className="pt-2 px-6 pb-6 bg-gray-50">
             <div className="text-gray-600 text-sm font-medium mb-2">To</div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-gray-900 text-2xl font-semibold">{toUnit}</span>
