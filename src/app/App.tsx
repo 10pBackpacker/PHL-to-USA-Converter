@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ArrowDownUp, DollarSign, Ruler } from 'lucide-react';
 
 type ConversionMode = 'currency' | 'hectares' | 'sqmeters';
@@ -133,6 +133,22 @@ export default function App() {
     setLastEdited('top');
   };
 
+  const savedValueRef = useRef<string>('');
+
+  const handleFocus = (field: 'top' | 'bottom') => {
+    savedValueRef.current = field === 'top' ? topValue : bottomValue;
+    if (field === 'top') setTopValue('');
+    else setBottomValue('');
+  };
+
+  const handleBlur = (field: 'top' | 'bottom') => {
+    const current = field === 'top' ? topValue : bottomValue;
+    if (current === '') {
+      if (field === 'top') setTopValue(savedValueRef.current);
+      else setBottomValue(savedValueRef.current);
+    }
+  };
+
   const swapUnits = () => {
     if (lastEdited === 'top' && topValue) {
       setBottomValue(topValue);
@@ -166,6 +182,8 @@ export default function App() {
               inputMode="decimal"
               value={addCommas(topValue)}
               onChange={handleTopChange}
+              onFocus={() => handleFocus('top')}
+              onBlur={() => handleBlur('top')}
               placeholder="0"
               className="w-full bg-white/20 backdrop-blur-sm text-white text-4xl font-light border-none outline-none rounded-2xl px-4 py-3 placeholder-white/50"
             />
@@ -193,6 +211,8 @@ export default function App() {
               inputMode="decimal"
               value={addCommas(bottomValue)}
               onChange={handleBottomChange}
+              onFocus={() => handleFocus('bottom')}
+              onBlur={() => handleBlur('bottom')}
               placeholder="0"
               className="w-full bg-white text-gray-900 text-4xl font-light rounded-2xl px-4 py-3 border-2 border-gray-200 outline-none focus:border-indigo-300"
             />
